@@ -44,3 +44,22 @@ def compute_similarity(A, B, t, t_dash, u, v):
     union_comp = sum(~(A_bool | B_bool))
     common_term = u * intersect + v * union_comp
     return (t * sim_diff + common_term) / (t_dash * sim_diff + common_term)
+
+
+# TODO: check if this is really needed
+def similarity(edge, vec):
+    return compute_similarity(edge[0], edge[1], vec[0], vec[1], vec[2], vec[3])
+
+
+def delta_generator(sigma, b):
+    """
+    TODO
+    """
+    def delta(x):
+        if x < -b:
+            return 0
+        elif x >= -b and x <= b:
+            return sigma(x)
+        else:
+            return 1
+    return delta
