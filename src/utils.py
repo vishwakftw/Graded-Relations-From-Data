@@ -1,5 +1,5 @@
 from numpy.linalg import solve
-from numpy import eye, empty
+from numpy import eye, empty, heaviside
 
 
 def solver(gram_matrix, outputs, reg_param):
@@ -50,6 +50,14 @@ def compute_similarity(A, B, t, t_dash, u, v):
 def similarity(edge, vec):
     return compute_similarity(edge[0], edge[1], vec[0], vec[1], vec[2], vec[3])
 
+def heaviside_similarity(edge):
+    f1, f2 = edge
+    assert len(f1) == len(f2), "Vector length mismatch"
+    similarity = 0.0
+    for e1, e2 in f1, f2:
+        similarity += heaviside(e1, e2)
+    similarity /= len(f1)
+    return similarity
 
 def delta_generator(sigma, b):
     """

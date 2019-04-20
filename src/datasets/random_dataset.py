@@ -1,13 +1,13 @@
 import numpy as np
 import utils
 
-from distributions import bernoulli
+from ..distributions import bernoulli
 
 
-class Dataset(object):
+class RandomDataset(object):
 
-    def __init__(self, dims, num_nodes, size, similarity_vector, p=0.5, dist_func=bernoulli):
-        assert num_nodes > 0 and dims > 0, "Invalid node count or dims specified"
+    def __init__(self, size, num_nodes, dims, similarity_vector, p=0.5, dist_func=bernoulli):
+        assert size > 0 and num_nodes > 0 and dims > 0, "Invalid size, node count, or dims specified"
         self.dims = dims
         self.num_nodes = num_nodes
         self.size = size
