@@ -12,8 +12,8 @@ def solver(gram_matrix, outputs, reg_param):
           `a` are the dual weights
           `Y` is the vector of outputs of length n
     """
-    LHS = gram_matrix + reg_param * gram_matrix.shape[-1] * np.eye(gram_matrix.shape[-1])
-    return np.linalg.solve(LHS, outputs)
+    LHS = gram_matrix + reg_param * gram_matrix.shape[-1] * eye(gram_matrix.shape[-1])
+    return solve(LHS, outputs)
 
 
 def generate_gram_matrix(input_features, kernel):

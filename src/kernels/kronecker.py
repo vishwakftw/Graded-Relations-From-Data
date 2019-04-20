@@ -16,7 +16,7 @@ def reciprocal_kronecker_product_pairwise_kernel(edge1, edge2, **kwargs):
     Computes the Reciprocal Kronecker product pairwise kernel between two edges.
     Uses the Gaussian (RBF) kernel internally for nodes.
     """
-    x1, y2 = edge1
+    x1, y1 = edge1
     x2, y2 = edge2
     part1 = gaussian_kernel(x1, x2, **kwargs) * gaussian_kernel(y1, y2, **kwargs)
     part2 = gaussian_kernel(x1, y2, **kwargs) * gaussian_kernel(x2, y1, **kwargs)
