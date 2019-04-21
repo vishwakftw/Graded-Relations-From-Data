@@ -33,11 +33,17 @@ class RandomDataset(object):
         self.y[:split_index] = self.y[:split_index] ^ 1
         self.permute_data()
 
-    def train_val_test_split(self, train_fraction, val_fraction):
-        assert train_fraction >= 0.0 and val_fraction >= 0.0 and train_fraction + val_fraction <= 1.0, "Invalid fractions"
+    def train_val_test_split(self, train_fraction=None, val_fraction=None, train_size=None, val_size=None):
+        assert (train_fraction is not None and val_fraction is not None) or (train_size is not None and val_size is not None), "Split improperly specified"
+        if train_fraction is None:
+            assert train_size >= 0 and val_size >= 0 and train_size + val_size <= self.size, "Invalid size"
+            train_split_index = train_size
+            val_split_index = train_size + val_size
+        else:
+            assert train_fraction >= 0.0 and val_fraction >= 0.0 and train_fraction + val_fraction <= 1.0, "Invalid fractions"
+            train_split_index = self.size * train_fraction
+            val_split_index = self.size * (train_fraction + val_fraction)
         self.permute_data()
-        train_split_index = self.size * train_fraction
-        val_split_index = self.size * (train_fraction + val_fraction)
         self.train_X = self.X[:train_split_index]
         self.train_y = self.y[:train_split_index]
         self.val_X = self.X[train_split_index:val_split_index]

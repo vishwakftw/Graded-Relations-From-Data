@@ -16,7 +16,7 @@ def solver(gram_matrix, outputs, reg_param):
     return solve(LHS, outputs)
 
 
-def generate_gram_matrix(input_features, kernel):
+def generate_gram_matrix(input_features, kernel, **kwargs):
     """
     Create the gram matrix of inputs using a specific kernel
     """
@@ -24,7 +24,7 @@ def generate_gram_matrix(input_features, kernel):
     G = empty((n_inputs, n_inputs))
     for i in range(n_inputs):
         for j in range(n_inputs):
-            G[i, j] = kernel(input_features[i], input_features[j])
+            G[i, j] = kernel(input_features[i], input_features[j], **kwargs)
     return G
 
 
@@ -59,15 +59,16 @@ def heaviside_similarity(edge):
     similarity /= len(f1)
     return similarity
 
-def delta_generator(sigma, b):
+def get_predictor(h, sigma, b):
     """
     TODO
     """
-    def delta(x):
-        if x < -b:
+    def q(x):
+        h_x = h(x)
+        if h_x < -b:
             return 0
-        elif x >= -b and x <= b:
-            return sigma(x)
+        elif h_x >= -b and h_x <= b:
+            return sigma(h_x)
         else:
             return 1
-    return delta
+    return q
