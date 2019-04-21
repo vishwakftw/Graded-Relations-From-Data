@@ -43,10 +43,13 @@ class RandomDataset(object):
             assert train_fraction >= 0.0 and val_fraction >= 0.0 and train_fraction + val_fraction <= 1.0, "Invalid fractions"
             train_split_index = self.size * train_fraction
             val_split_index = self.size * (train_fraction + val_fraction)
-        self.permute_data()
-        self.train_X = self.X[:train_split_index]
-        self.train_y = self.y[:train_split_index]
-        self.val_X = self.X[train_split_index:val_split_index]
-        self.val_y = self.y[train_split_index:val_split_index]
-        self.test_X = self.X[val_split_index:]
-        self.test_y = self.y[val_split_index:]
+        permutation = np.random.permutation(np.arange(self.size))
+        self.train_indices = permutation[:train_split_index]
+        self.val_indices = permutation[train_split_index:val_split_index]
+        self.test_indices = permutation[val_split_index:]
+        self.train_X = self.X[self.train_indices]
+        self.train_y = self.y[self.train_indices]
+        self.val_X = self.X[self.val_indices]
+        self.val_y = self.y[self.val_indices]
+        self.test_X = self.X[self.test_indices]
+        self.test_y = self.y[self.test_indices]

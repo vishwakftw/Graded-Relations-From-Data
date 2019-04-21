@@ -1,28 +1,61 @@
 import kernels
+import math
 import numpy as np
 import utils
 
 from ..datasets import random_dataset
+from ..distributions import bernoulli
+from sklearn.base import BaseEstimator, RegressorMixin
+from sklearn.grid_search import GridSearchCV
+from sklearn.metrics import mean_squared_error
+from sklearn.model_selection import PredefinedSplit
 
-def train(data_loader, kernel, reg_param, width):
-    gram_matrix = utils.generate_gram_matrix(data_loader.train_X, kernel, width)
-    weights = utils.solve(gram_matrix, data_loader.train_y, reg_param)
-    def h(edge):
-        sum = 0.0
-        for i in range(len(weights)):
-            sum += weights[i] * kernel(data_loader.train_X[i], edge)
-        return sum
-    return h
 
-def load_data(size, num_nodes, dims, similarity_vector, p=0.5, dist_func=bernoulli, noise=0.1, train_frac=None, val_frac=None, train_size=500, val_size=500):
-    data_loader = random_dataset.RandomDataset(size, num_nodes, dims, similarity_vector, p, dist_func)
-    data_loader.add_noise(noise)
-    data_loader.train_val_test_split(train_frac, val_frac, train_size, val_size)
+def load_data(args):
+    dist_func = utils.map_dist_func(args.dist_func)
+    data_loader = random_dataset.RandomDataset(args.size, args.num_nodes, args.dims, args.similarity_vector, args.p, dist_func)
+    data_loader.add_noise(args.noise)
+    data_loader.train_val_test_split(args.train_frac, args.val_frac, args.train_size, args.val_size)
     return data_loader
 
+
+class LearnSimilarityMeasures(BaseEstimator, RegressorMixin):
+
+    def __init__(self, kernel_name='cartesian', sigma_name='sigmoid', b=1.0, reg_param=1.0, width=1.0):
+        self.kernel_name = kernel_name
+        self.sigma_name = sigma_name
+        self.b = b
+        self.reg_param = reg_param
+        self.width = width
+
+    def fit(self, X, y):
+        kernel = utils.map_kernel(self.kernel_name)
+        sigma = utils.map_sigma(self.sigma_name)
+        gram_matrix = utils.generate_gram_matrix(X, kernel, self.width)
+        weights = utils.solver(gram_matrix, y, self.reg_param)
+        def h(edge):
+            sum = 0.0
+            for i in range(len(weights)):
+                sum += weights[i] * kernel(X[i], edge)
+            return sum
+        self.predictor_ = utils.get_predictor(h, sigma, self.b)
+        return self
+
+    def predict(self, X):
+        predictions = np.array(list(map(self.predictor, X)))
+        return predictions
+
+
 def run(args):
-    data_loader = load_data(args.size, args.num_nodes, args.dims, args.sim_vec, args.p, args.dist_func, args.noise, args.train_frac, args.val_frac, args.train_size, args.val_size)
-    kernel = utils.map_kernel(args.kernel)
-    h = train(data_loader, kernel, args.reg_param, args.width)
-    sigma = utils.map_sigma(args.sigma)
-    predictor = utils.get_predictor(h, sigma, args.b)
+    param_grid = {'kernel_name': ['cartesian'], 'sigma_name': ['sigmoid'], 'b': [1.0, 2.0], 'reg_param': [math.pow(x-20) for x in range(22)], 'width': [math.pow(x-20) for x in range(22)]}
+    data_loader = load_data(args)
+    test_fold = np.full(data_loader.size, -1)
+    test_fold[data_loader.test_indices] = 0
+    ps = PredefinedSplit(test_fold)
+    model = LearnSimilarityMeasures(args.kernel, args.sigma)
+    cv = GridSearchCV(model, param_grid=param_grid, scoring=mean_squared_error, cv=ps)
+    cv.fit(data_loader.X)
+    predictions = cv.predict(data_loader.test_X)
+    error = mean_squared_error(predictions, data_loader.test_y)
+    print("Error: ",error)
+    
