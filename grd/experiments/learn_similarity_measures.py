@@ -48,7 +48,7 @@ class LearnSimilarityMeasures(BaseEstimator, RegressorMixin):
 
 
 def run(args):
-    param_grid = {'kernel_name': ['cartesian'], 'sigma_name': ['sigmoid'], 'b': [1.0], 'reg_param': [math.pow(2,x-2) for x in range(2)], 'width': [math.pow(2,x-2) for x in range(2)]}
+    param_grid = {'kernel_name': [args.kernel], 'sigma_name': [args.sigma], 'b': [args.b], 'reg_param': [math.pow(2,x-2) for x in range(2)], 'width': [math.pow(2,x-2) for x in range(2)]}
     data_loader = load_data(args)
     print("Generated data")
     test_fold = np.full(data_loader.cv_size(), -1)
