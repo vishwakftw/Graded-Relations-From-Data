@@ -1,5 +1,5 @@
 import numpy as np
-import utils
+import grd.utils as utils
 
 
 class SpeciesCompetitionDataset(object):
