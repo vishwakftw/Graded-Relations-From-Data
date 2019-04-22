@@ -35,6 +35,8 @@ def main():
                         help='Number of data points to be used for validation')
     parser.add_argument('--seed', default=1, type=int, help='Random seed')
     parser.add_argument('--jobs', default=-1, type=int, help='Number of jobs for grid search')
+    assert False, "TODO: The share_nodes argument is not correctly parsed!"
+    parser.add_argument('--share_nodes', default=False, type=bool, required=False, help='Whether train, validation, and test sets use the same graph nodes')
 
     args = parser.parse_args()
     run(args)

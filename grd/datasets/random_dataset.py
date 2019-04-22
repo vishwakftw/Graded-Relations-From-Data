@@ -10,15 +10,24 @@ def _generate_subsection(X, y, indices):
 
 class RandomDataset(object):
 
-    def __init__(self, size, num_nodes, dims, similarity_vector, p=0.5, dist_func=bernoulli):
+    def __init__(self, size, num_nodes, dims, similarity_vector, p=0.5, dist_func=bernoulli, share_nodes=True):
         assert size > 0 and num_nodes > 0 and dims > 0, \
                "Invalid size, node count, or dims specified"
         self.dims = dims
         self.num_nodes = num_nodes
         self.size = size
-        self.nodes = dist_func(p, [num_nodes, dims])
-        self.similarity_vector = similarity_vector
-        self.X, self.y = self.generate_data(self.nodes, size, similarity_vector)
+        self.share_nodes = share_nodes
+        if share_nodes:
+            self.nodes = dist_func(p, [num_nodes, dims])
+            self.similarity_vector = similarity_vector
+            self.X, self.y = self.generate_data(self.nodes, size, similarity_vector)
+        else:
+            self.train_nodes = dist_func(p, [num_nodes, dims])
+            self.val_nodes = dist_func(p, [num_nodes, dims])
+            self.test_nodes = dist_func(p, [num_nodes, dims])
+            self.train_X, self.train_y = self.generate_data(self.train_nodes, size, similarity_vector)
+            self.val_X, self.val_y = self.generate_data(self.val_nodes, size, similarity_vector)
+            self.test_X, self.test_y = self.generate_data(self.test_nodes, size, similarity_vector)
 
     def generate_data(self, nodes, size, similarity_vector):
         pairs = np.array([(x, y) for x in nodes for y in nodes if np.any(x != y)])
@@ -31,7 +40,12 @@ class RandomDataset(object):
         for i in range(self.size):
             for j in range(2):
                 indices = np.random.choice(self.dims, int(self.dims * fraction))
-                self.X[i, j, indices] = 1 - self.X[i, j, indices]
+                if self.share_nodes:
+                    self.X[i, j, indices] = 1 - self.X[i, j, indices]
+                else:
+                    self.train_X[i, j, indices] = 1 - self.train_X[i, j, indices]
+                    self.val_X[i, j, indices] = 1 - self.val_X[i, j, indices]
+                    self.test_X[i, j, indices] = 1 - self.test_X[i, j, indices]
 
     def train_val_test_split(self, train_fraction=None, val_fraction=None,
                              train_size=None, val_size=None):
