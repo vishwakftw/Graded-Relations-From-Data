@@ -1,5 +1,5 @@
 import numpy as np
-import utils
+import grd.utils as utils
 
 from ..distributions import bernoulli
 
@@ -16,7 +16,7 @@ class RandomDataset(object):
         self.X, self.y = self.generate_data(self.nodes, size, similarity_vector)
 
     def generate_data(self, nodes, size, similarity_vector):
-        pairs = np.array([(x, y) for x in nodes for y in nodes if x != y])
+        pairs = np.array([(x, y) for x in nodes for y in nodes if np.any(x != y)])
         edges = np.random.permutation(pairs)[:size]
         labels = np.array([utils.similarity(e, similarity_vector) for e in edges])
         return edges, labels
@@ -29,8 +29,11 @@ class RandomDataset(object):
     def add_noise(self, fraction):
         assert fraction >= 0.0 and fraction <= 1.0, "Invalid fraction specified"
         self.permute_data()
-        split_index = self.size * fraction
-        self.y[:split_index] = self.y[:split_index] ^ 1
+        split_index = int(self.size * fraction)
+        print(split_index)
+        print(self.y[:split_index])
+        # TODO: fix this
+        self.X[:split_index] = self.X[:split_index] ^ 1
         self.permute_data()
 
     def train_val_test_split(self, train_fraction=None, val_fraction=None, train_size=None, val_size=None):
@@ -41,8 +44,8 @@ class RandomDataset(object):
             val_split_index = train_size + val_size
         else:
             assert train_fraction >= 0.0 and val_fraction >= 0.0 and train_fraction + val_fraction <= 1.0, "Invalid fractions"
-            train_split_index = self.size * train_fraction
-            val_split_index = self.size * (train_fraction + val_fraction)
+            train_split_index = int(self.size * train_fraction)
+            val_split_index = int(self.size * (train_fraction + val_fraction))
         permutation = np.random.permutation(np.arange(self.size))
         self.train_indices = permutation[:train_split_index]
         self.val_indices = permutation[train_split_index:val_split_index]
@@ -53,3 +56,22 @@ class RandomDataset(object):
         self.val_y = self.y[self.val_indices]
         self.test_X = self.X[self.test_indices]
         self.test_y = self.y[self.test_indices]
+
+    def cv_x(self):
+        print(self.train_X.shape)
+        print(self.val_X.shape)
+        print(np.vstack((self.train_X, self.val_X)).shape)
+        return np.vstack((self.train_X, self.val_X))
+    
+    def cv_y(self):
+        print(self.train_y.shape)
+        print(self.val_y.shape)
+        print(np.hstack((self.train_y, self.val_y)).shape)
+        return np.hstack((self.train_y, self.val_y))
+
+    def cv_size(self):
+        return len(self.train_X) + len(self.val_X)
+
+    def cv_indices(self):
+        return np.arange(len(self.train_X),len(self.train_X)+len(self.val_X))
+

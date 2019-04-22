@@ -1,4 +1,4 @@
-from node_kernels import gaussian_kernel
+from .node_kernels import gaussian_kernel
 
 
 def kronecker_product_pairwise_kernel(edge1, edge2, **kwargs):

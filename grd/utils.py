@@ -1,5 +1,8 @@
+import grd.kernels as kernels
+
+from .distributions import bernoulli
 from numpy.linalg import solve
-from numpy import eye, empty, heaviside
+from numpy import eye, empty, exp, heaviside
 
 
 def solver(gram_matrix, outputs, reg_param):
@@ -59,6 +62,9 @@ def heaviside_similarity(edge):
     similarity /= len(f1)
     return similarity
 
+def sigmoid(x):
+    return 1./(1+exp(-x))
+
 def get_predictor(h, sigma, b):
     """
     TODO
@@ -72,3 +78,35 @@ def get_predictor(h, sigma, b):
         else:
             return 1
     return q
+
+def map_kernel(kernel_name):
+    if kernel_name == 'cartesian':
+        return kernels.cartesian.cartesian_pairwise_kernel
+    elif kernel_name == 'kronecker':
+        return kernels.kronecker.kronecker_product_pairwise_kernel
+    elif kernel_name == 'reciprocal_kronecker':
+        return kernels.kronecker.reciprocal_kronecker_product_pairwise_kernel
+    elif kernel_name == 'symmetric_kronecker':
+        return kernels.kronecker.symmetric_kronecker_product_pairwise_kernel
+    elif kernel_name == 'mlpk':
+        return kernels.kronecker.metric_learning_pairwise_kernel
+    assert False, "Invalid kernel name"
+
+def map_sigma(sigma_name):
+    if sigma_name == 'sigmoid':
+        return sigmoid
+    assert False, "Invalid name for sigma function"
+
+def map_similarity_vector(similarity_vector_name):
+    if similarity_vector_name == 'jaccard':
+        return [0,1,1,0]
+    elif similarity_vector_name == 'sokal':
+        return [0,1,2,2]
+    elif similarity_vector_name == 'tp':
+        return [1,2,1,1]
+
+def map_dist_func(dist_func_name):
+    if dist_func_name == 'bernoulli':
+        return bernoulli
+    assert False, "Invalid dist_func name"
+
