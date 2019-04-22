@@ -2,7 +2,14 @@ import grd.kernels as kernels
 
 from .distributions import bernoulli
 from numpy.linalg import solve
-from numpy import eye, empty, exp, heaviside
+from numpy import eye, empty, exp, heaviside, reciprocal
+
+
+def _sigmoid(x):
+    """
+    Sigmoid function
+    """
+    return reciprocal(1 + exp(-x))
 
 
 def solver(gram_matrix, outputs, reg_param):
@@ -49,21 +56,19 @@ def compute_similarity(A, B, t, t_dash, u, v):
     return (t * sim_diff + common_term) / (t_dash * sim_diff + common_term)
 
 
-# TODO: check if this is really needed
-def similarity(edge, vec):
-    return compute_similarity(edge[0], edge[1], vec[0], vec[1], vec[2], vec[3])
-
 def heaviside_similarity(edge):
+    """
+    Function to compute the heaviside similarity between the feature
+    representation of the vertices between an edge.
+    """
     f1, f2 = edge
     assert len(f1) == len(f2), "Vector length mismatch"
     similarity = 0.0
-    for e1, e2 in f1, f2:
+    for e1, e2 in zip(f1, f2):
         similarity += heaviside(e1, e2)
     similarity /= len(f1)
     return similarity
 
-def sigmoid(x):
-    return 1./(1+exp(-x))
 
 def get_predictor(h, sigma, b):
     """
@@ -79,34 +84,50 @@ def get_predictor(h, sigma, b):
             return 1
     return q
 
+
 def map_kernel(kernel_name):
-    if kernel_name == 'cartesian':
+    """
+    Function to map a kernel function to the callable.
+    """
+    if kernel_name.find('kronecker') != -1:
+        return getattr(kernels.kronecker, kernel_name + '_product_pairwise_kernel')
+    elif kernel_name == 'cartesian':
         return kernels.cartesian.cartesian_pairwise_kernel
-    elif kernel_name == 'kronecker':
-        return kernels.kronecker.kronecker_product_pairwise_kernel
-    elif kernel_name == 'reciprocal_kronecker':
-        return kernels.kronecker.reciprocal_kronecker_product_pairwise_kernel
-    elif kernel_name == 'symmetric_kronecker':
-        return kernels.kronecker.symmetric_kronecker_product_pairwise_kernel
     elif kernel_name == 'mlpk':
         return kernels.kronecker.metric_learning_pairwise_kernel
-    assert False, "Invalid kernel name"
+    else:
+        raise NotImplementedError('Kernel {} not implemented'.format(kernel_name))
 
 def map_sigma(sigma_name):
+    """
+    Function to map a sigma function to the callable.
+    """
     if sigma_name == 'sigmoid':
-        return sigmoid
-    assert False, "Invalid name for sigma function"
+        return _sigmoid
+    else:
+        raise NotImplementedError('sigma function {} not implemented'.format(sigma_name))
+
 
 def map_similarity_vector(similarity_vector_name):
+    """
+    Function to get the similarity vector parameterization given the name.
+    """
     if similarity_vector_name == 'jaccard':
-        return [0,1,1,0]
+        return [0, 1, 1, 0]
     elif similarity_vector_name == 'sokal':
-        return [0,1,2,2]
+        return [0, 1, 2, 2]
     elif similarity_vector_name == 'tp':
-        return [1,2,1,1]
+        return [1, 2, 1, 1]
+    else:
+        raise ValueError('Similarity vector form for {} not available'
+                         .format(similarity_vector_name))
+
 
 def map_dist_func(dist_func_name):
+    """
+    Function to map a distribution generation function to the callable.
+    """
     if dist_func_name == 'bernoulli':
         return bernoulli
-    assert False, "Invalid dist_func name"
-
+    else:
+        raise NotImplementedError('dist_func {} not implemented'.format(dist_func_name))

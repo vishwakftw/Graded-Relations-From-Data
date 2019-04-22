@@ -14,7 +14,8 @@ from sklearn.model_selection import PredefinedSplit
 def load_data(args):
     dist_func = utils.map_dist_func(args.dist_func)
     similarity_vector = utils.map_similarity_vector(args.similarity_vector)
-    data_loader = random_dataset.RandomDataset(args.size, args.num_nodes, args.dims, similarity_vector, args.p, dist_func)
+    data_loader = random_dataset.RandomDataset(args.size, args.num_nodes,
+                                               args.dims, similarity_vector, args.p, dist_func)
     data_loader.add_noise(args.noise)
     data_loader.train_val_test_split(args.train_frac, args.val_frac, args.train_size, args.val_size)
     return data_loader
@@ -22,7 +23,8 @@ def load_data(args):
 
 class LearnSimilarityMeasures(BaseEstimator, RegressorMixin):
 
-    def __init__(self, kernel_name='cartesian', sigma_name='sigmoid', b=1.0, reg_param=1.0, width=1.0):
+    def __init__(self, kernel_name='cartesian', sigma_name='sigmoid',
+                 b=1.0, reg_param=1.0, width=1.0):
         self.kernel_name = kernel_name
         self.sigma_name = sigma_name
         self.b = b
@@ -48,22 +50,32 @@ class LearnSimilarityMeasures(BaseEstimator, RegressorMixin):
 
 
 def run(args):
-    param_grid = {'kernel_name': ['cartesian'], 'sigma_name': ['sigmoid'], 'b': [1.0], 'reg_param': [math.pow(2,x-2) for x in range(2)], 'width': [math.pow(2,x-2) for x in range(2)]}
+    np.random.seed(args.seed)
+    param_grid = {'kernel_name': [args.kernel], 'sigma_name': [args.sigma],
+                  'b': [args.b], 'reg_param': 2. ** np.arange(-10, 3, 2),
+                  'width': 2. ** np.arange(-10, 3, 2)}
+    print("Generating data....")
     data_loader = load_data(args)
-    print("Generated data")
+    print("Done.")
+
+    print("Creating model....")
     test_fold = np.full(data_loader.cv_size(), -1)
     test_fold[data_loader.cv_indices()] = 0
     ps = PredefinedSplit(test_fold)
     model = LearnSimilarityMeasures(args.kernel, args.sigma)
-    print("Created model")
+    print("Done.")
+
+    print("Initializing grid for grid search....")
     scorer = make_scorer(mean_squared_error, greater_is_better=False)
     cv = GridSearchCV(model, param_grid=param_grid, scoring=scorer, cv=ps)
-    print("About to fit")
+    print("Done.")
+
+    print("Fitting....")
     cv.fit(data_loader.cv_x(), data_loader.cv_y())
-    # model.fit(data_loader.train_X, data_loader.train_y)
-    print("Done fitting")
-    print(data_loader.test_X)
+    print("Done.")
+
+    print("Generating predictions....")
     predictions = cv.predict(data_loader.test_X)
     error = mean_squared_error(predictions, data_loader.test_y)
-    print("Error: ",error)
-    
+    print("Error: ", error)
+    print("Done.")
