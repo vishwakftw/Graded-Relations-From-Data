@@ -47,8 +47,8 @@ class LearnSimilarityMeasures(BaseEstimator, RegressorMixin):
 
 def run(args):
     np.random.seed(args.seed)
-    param_grid = {'kernel_name': [args.kernel], 'reg_param': 2. ** np.arange(-20, 5, 1),
-                  'width': 2. ** np.arange(-10, 2, 1)}
+    param_grid = {'kernel_name': [args.kernel], 'reg_param': 2. ** np.arange(-20, 2, 1),
+                  'width': 2. ** np.arange(-20, 2, 1)}
     print("Generating data....")
     data_loader = load_data(args)
     print("Done.")
@@ -62,7 +62,7 @@ def run(args):
 
     print("Initializing grid for grid search....")
     scorer = make_scorer(mean_squared_error, greater_is_better=False)
-    cv = GridSearchCV(model, param_grid=param_grid, scoring=scorer, cv=ps, n_jobs=-1)
+    cv = GridSearchCV(model, param_grid=param_grid, scoring=scorer, cv=ps, n_jobs=args.jobs)
     print("Done.")
 
     print("Fitting....")
@@ -71,8 +71,6 @@ def run(args):
 
     print("Generating predictions....")
     predictions = cv.predict(data_loader.test_X)
-    print(predictions)
-    print(data_loader.test_y)
     error = mean_squared_error(predictions, data_loader.test_y)
     print("Error: ", error)
     print("Baseline Error (mean prediction): ",
