@@ -1,10 +1,7 @@
-import grd.kernels as kernels
-import math
 import numpy as np
 import grd.utils as utils
 
 from ..datasets import random_dataset
-from ..distributions import bernoulli
 from sklearn.base import BaseEstimator, RegressorMixin
 from sklearn.model_selection import GridSearchCV
 from sklearn.metrics import make_scorer, mean_squared_error
@@ -36,11 +33,13 @@ class LearnSimilarityMeasures(BaseEstimator, RegressorMixin):
         sigma = utils.map_sigma(self.sigma_name)
         gram_matrix = utils.generate_gram_matrix(X, kernel, width=self.width)
         weights = utils.solver(gram_matrix, y, self.reg_param)
+
         def h(edge):
             sum = 0.0
             for i in range(len(weights)):
                 sum += weights[i] * kernel(X[i], edge)
             return sum
+
         self.predictor_ = utils.get_predictor(h, sigma, self.b)
         return self
 
@@ -67,7 +66,7 @@ def run(args):
 
     print("Initializing grid for grid search....")
     scorer = make_scorer(mean_squared_error, greater_is_better=False)
-    cv = GridSearchCV(model, param_grid=param_grid, scoring=scorer, cv=ps)
+    cv = GridSearchCV(model, param_grid=param_grid, scoring=scorer, cv=ps, n_jobs=-1)
     print("Done.")
 
     print("Fitting....")

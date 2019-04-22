@@ -98,6 +98,7 @@ def map_kernel(kernel_name):
     else:
         raise NotImplementedError('Kernel {} not implemented'.format(kernel_name))
 
+
 def map_sigma(sigma_name):
     """
     Function to map a sigma function to the callable.

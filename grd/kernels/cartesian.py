@@ -1,6 +1,7 @@
 from .node_kernels import gaussian_kernel
 from numpy import array_equal
 
+
 def cartesian_pairwise_kernel(edge1, edge2, **kwargs):
     """
     Computes the Cartesian pairwise kernel between two edges.

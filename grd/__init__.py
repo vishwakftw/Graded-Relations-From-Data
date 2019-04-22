@@ -1,3 +1,3 @@
-from grd import experiments
-from grd import kernels
-from grd import datasets
+from . import experiments  # noqa: F401
+from . import kernels  # noqa: F401
+from . import datasets  # noqa: F401

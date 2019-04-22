@@ -1,1 +1,1 @@
-from . import learn_similarity_measures
+from . import learn_similarity_measures   # noqa: F401

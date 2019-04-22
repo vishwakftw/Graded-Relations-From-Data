@@ -11,7 +11,8 @@ def _generate_subsection(X, y, indices):
 class RandomDataset(object):
 
     def __init__(self, size, num_nodes, dims, similarity_vector, p=0.5, dist_func=bernoulli):
-        assert size > 0 and num_nodes > 0 and dims > 0, "Invalid size, node count, or dims specified"
+        assert size > 0 and num_nodes > 0 and dims > 0, \
+               "Invalid size, node count, or dims specified"
         self.dims = dims
         self.num_nodes = num_nodes
         self.size = size
@@ -36,7 +37,8 @@ class RandomDataset(object):
         self.X[:split_index] = self.X[:split_index] ^ 1
         self.permute_data()
 
-    def train_val_test_split(self, train_fraction=None, val_fraction=None, train_size=None, val_size=None):
+    def train_val_test_split(self, train_fraction=None, val_fraction=None,
+                             train_size=None, val_size=None):
         assert (train_fraction is not None and val_fraction is not None) or \
                (train_size is not None and val_size is not None), "Split improperly specified"
         if train_fraction is None:
@@ -59,7 +61,7 @@ class RandomDataset(object):
 
     def cv_x(self):
         return np.vstack((self.train_X, self.val_X))
-    
+
     def cv_y(self):
         return np.hstack((self.train_y, self.val_y))
 
