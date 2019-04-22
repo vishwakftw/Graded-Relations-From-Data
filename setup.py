@@ -1,7 +1,8 @@
 from setuptools import setup, find_packages
 
 requirements = [
-    'numpy'
+    'numpy',
+    'scikit-learn'
 ]
 
 VERSION = '0.0.1'
