@@ -2,14 +2,7 @@ import grd.kernels as kernels
 
 from .distributions import bernoulli
 from numpy.linalg import solve
-from numpy import eye, empty, exp, heaviside, reciprocal
-
-
-def _sigmoid(x):
-    """
-    Sigmoid function
-    """
-    return reciprocal(1 + exp(-x))
+from numpy import eye, empty, heaviside
 
 
 def solver(gram_matrix, outputs, reg_param):
@@ -70,21 +63,6 @@ def heaviside_similarity(edge):
     return similarity
 
 
-def get_predictor(h, sigma, b):
-    """
-    TODO
-    """
-    def q(x):
-        h_x = h(x)
-        if h_x < -b:
-            return 0
-        elif h_x >= -b and h_x <= b:
-            return sigma(h_x)
-        else:
-            return 1
-    return q
-
-
 def map_kernel(kernel_name):
     """
     Function to map a kernel function to the callable.
@@ -97,16 +75,6 @@ def map_kernel(kernel_name):
         return kernels.kronecker.metric_learning_pairwise_kernel
     else:
         raise NotImplementedError('Kernel {} not implemented'.format(kernel_name))
-
-
-def map_sigma(sigma_name):
-    """
-    Function to map a sigma function to the callable.
-    """
-    if sigma_name == 'sigmoid':
-        return _sigmoid
-    else:
-        raise NotImplementedError('sigma function {} not implemented'.format(sigma_name))
 
 
 def map_similarity_vector(similarity_vector_name):

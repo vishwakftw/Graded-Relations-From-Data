@@ -26,16 +26,12 @@ class RandomDataset(object):
         labels = np.array([utils.compute_similarity(*e, *similarity_vector) for e in edges])
         return edges, labels
 
-    def permute_data(self):
-        permutation = np.random.permutation(np.arange(self.size))
-        self.X, self.y = _generate_subsection(self.X, self.y, permutation)
-
     def add_noise(self, fraction):
         assert fraction >= 0.0 and fraction <= 1.0, "Invalid fraction specified"
-        self.permute_data()
-        split_index = int(self.size * fraction)
-        self.X[:split_index] = self.X[:split_index] ^ 1
-        self.permute_data()
+        for i in range(self.size):
+            for j in range(2):
+                indices = np.random.choice(self.dims, int(self.dims * fraction))
+                self.X[i, j, indices] = 1 - self.X[i, j, indices]
 
     def train_val_test_split(self, train_fraction=None, val_fraction=None,
                              train_size=None, val_size=None):

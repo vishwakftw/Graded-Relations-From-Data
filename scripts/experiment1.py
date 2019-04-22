@@ -25,10 +25,6 @@ def main():
     parser.add_argument('--kernel', type=str, required=True,
                         choices=['cartesian', 'kronecker', 'reciprocal_kronecker',
                                  'symmetric_kronecker', 'mlpk'], help='Kernel to use')
-    parser.add_argument('--sigma', default='sigmoid', type=str, choices=['sigmoid'],
-                        required=False, help='Function to use for sigma(x)')
-    parser.add_argument('--b', default=1.0, type=float, required=False,
-                        help='Threshold for Delta function')
     parser.add_argument('--train_frac', default=None, type=float, required=False,
                         help='Fraction of dataset to be used for training')
     parser.add_argument('--val_frac', default=None, type=float, required=False,
