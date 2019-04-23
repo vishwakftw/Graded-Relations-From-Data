@@ -53,4 +53,4 @@ This code is provided using the [MIT License](LICENSE).
 ---
 This project was a part of the course MA6040: Fuzzy Logic Connectives: Theory and Applications, offered in Spring 2019 at IIT Hyderabad.
 
-Team members: [Vishwak Srinivasan](vishwakftw.github.io) and [Sukrut Rao](sukrutrao.github.io).
+Team members: [Vishwak Srinivasan](https://vishwakftw.github.io) and [Sukrut Rao](https://sukrutrao.github.io).
