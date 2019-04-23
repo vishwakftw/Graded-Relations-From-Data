@@ -1,7 +1,8 @@
 import numpy as np
 import grd.utils as utils
 
-from ..datasets import random_dataset
+from ..datasets.random_dataset import RandomDataset
+from ..datasets.species_competition_dataset import SpeciesCompetitionDataset
 from sklearn.base import BaseEstimator, RegressorMixin
 from sklearn.model_selection import GridSearchCV
 from sklearn.metrics import make_scorer, mean_squared_error
@@ -9,19 +10,26 @@ from sklearn.model_selection import PredefinedSplit
 
 
 def load_data(args):
-    dist_func = utils.map_dist_func(args.dist_func)
-    similarity_vector = utils.map_similarity_vector(args.similarity_vector)
-    data_loader = random_dataset.RandomDataset(args.size, args.num_nodes,
-                                               args.dims, similarity_vector,
-                                               args.p, dist_func, not args.noshare_nodes)
-    data_loader.add_noise(args.noise)
-    if not args.noshare_nodes:
-        data_loader.train_val_test_split(args.train_frac, args.val_frac,
-                                         args.train_size, args.val_size)
-    return data_loader
+    if args.exp == 1:
+        dist_func = utils.map_dist_func(args.dist_func)
+        similarity_vector = utils.map_similarity_vector(args.similarity_vector)
+        data_loader = RandomDataset(args.size, args.num_nodes,
+                                                args.dims, similarity_vector,
+                                                args.p, dist_func, not args.noshare_nodes)
+        data_loader.add_noise(args.noise)
+        if not args.noshare_nodes:
+            data_loader.train_val_test_split(args.train_frac, args.val_frac,
+                                            args.train_size, args.val_size)
+        return data_loader
+    else:
+        data_loader = SpeciesCompetitionDataset(args.train_size, args.val_size,
+                                                args.test_size, args.num_train_nodes,
+                                                args.num_val_nodes, args.num_test_nodes,
+                                                args.k)
+        return data_loader
 
 
-class LearnSimilarityMeasures(BaseEstimator, RegressorMixin):
+class SimilarityEstimator(BaseEstimator, RegressorMixin):
 
     def __init__(self, kernel_name='cartesian', reg_param=1.0, width=1.0):
         self.kernel_name = kernel_name
@@ -60,7 +68,7 @@ def run(args):
     test_fold = np.full(data_loader.cv_size(), -1)
     test_fold[data_loader.cv_indices()] = 0
     ps = PredefinedSplit(test_fold)
-    model = LearnSimilarityMeasures(args.kernel)
+    model = SimilarityEstimator(args.kernel)
     print("Done.")
 
     print("Initializing grid for grid search....")

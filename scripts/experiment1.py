@@ -39,6 +39,7 @@ def main():
                         help='Whether train, validation, and test sets use the same graph nodes')
 
     args = parser.parse_args()
+    args.exp = 1
     run(args)
 
 
