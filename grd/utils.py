@@ -58,7 +58,7 @@ def heaviside_similarity(edge):
     assert len(f1) == len(f2), "Vector length mismatch"
     similarity = 0.0
     for e1, e2 in zip(f1, f2):
-        similarity += heaviside(e1, e2)
+        similarity += heaviside(e1-e2, 0.5)
     similarity /= len(f1)
     return similarity
 
