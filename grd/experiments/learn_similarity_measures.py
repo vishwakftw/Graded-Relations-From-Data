@@ -12,10 +12,12 @@ def load_data(args):
     dist_func = utils.map_dist_func(args.dist_func)
     similarity_vector = utils.map_similarity_vector(args.similarity_vector)
     data_loader = random_dataset.RandomDataset(args.size, args.num_nodes,
-                                               args.dims, similarity_vector, args.p, dist_func, args.share_nodes)
+                                               args.dims, similarity_vector,
+                                               args.p, dist_func, not args.noshare_nodes)
     data_loader.add_noise(args.noise)
-    if args.share_nodes:
-        data_loader.train_val_test_split(args.train_frac, args.val_frac, args.train_size, args.val_size)
+    if not args.noshare_nodes:
+        data_loader.train_val_test_split(args.train_frac, args.val_frac,
+                                         args.train_size, args.val_size)
     return data_loader
 
 
