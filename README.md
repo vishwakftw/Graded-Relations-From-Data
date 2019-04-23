@@ -1,4 +1,4 @@
-# Graded Relations from Data
+# [Graded Relations from Data](https://github.com/vishwakftw/Graded-Relations-From-Data)
 
 Implementation of the framework in the paper:
 
@@ -53,4 +53,4 @@ This code is provided using the [MIT License](LICENSE).
 ---
 This project was a part of the course MA6040: Fuzzy Logic Connectives: Theory and Applications, offered in Spring 2019 at IIT Hyderabad.
 
-Team members: Vishwak Srinivasan and Sukrut Rao.
+Team members: [Vishwak Srinivasan](vishwakftw.github.io) and [Sukrut Rao](sukrutrao.github.io).
