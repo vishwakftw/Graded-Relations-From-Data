@@ -14,17 +14,17 @@ def load_data(args):
         dist_func = utils.map_dist_func(args.dist_func)
         similarity_vector = utils.map_similarity_vector(args.similarity_vector)
         data_loader = RandomDataset(args.size, args.num_nodes,
-                                                args.dims, similarity_vector,
-                                                args.p, dist_func, not args.noshare_nodes)
+                                    args.dims, similarity_vector,
+                                    args.p, dist_func, not args.noshare_nodes)
         data_loader.add_noise(args.noise)
         if not args.noshare_nodes:
             data_loader.train_val_test_split(args.train_frac, args.val_frac,
-                                            args.train_size, args.val_size)
+                                             args.train_size, args.val_size)
         return data_loader
     else:
         data_loader = SpeciesCompetitionDataset(args.train_size, args.val_size,
-                                                args.test_size, args.num_train_nodes,
-                                                args.num_val_nodes, args.num_test_nodes,
+                                                args.test_size, args.num_train_species,
+                                                args.num_val_species, args.num_test_species,
                                                 args.k)
         return data_loader
 

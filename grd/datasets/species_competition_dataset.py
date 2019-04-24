@@ -1,9 +1,10 @@
 import numpy as np
 import grd.utils as utils
 
-class SpeciesCompetitionDataset(object):
 
-    def __init__(self, train_size, val_size, test_size, num_train_species, num_val_species, num_test_species, k):
+class SpeciesCompetitionDataset(object):
+    def __init__(self, train_size, val_size, test_size, num_train_species,
+                 num_val_species, num_test_species, k):
         assert train_size > 0 and val_size > 0 and test_size > 0 \
             and num_train_species > 0 and num_val_species > 0 and num_test_species > 0 \
             and k > 0, "Invalid size, n, or k specified"
@@ -38,4 +39,3 @@ class SpeciesCompetitionDataset(object):
 
     def cv_indices(self):
         return np.arange(self.train_X.shape[0], self.train_X.shape[0] + self.val_X.shape[0])
-

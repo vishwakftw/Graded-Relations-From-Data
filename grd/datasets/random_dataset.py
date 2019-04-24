@@ -9,8 +9,8 @@ def _generate_subsection(X, y, indices):
 
 
 class RandomDataset(object):
-
-    def __init__(self, size, num_nodes, dims, similarity_vector, p=0.5, dist_func=bernoulli, share_nodes=True):
+    def __init__(self, size, num_nodes, dims, similarity_vector, p=0.5,
+                 dist_func=bernoulli, share_nodes=True):
         assert size > 0 and num_nodes > 0 and dims > 0, \
                "Invalid size, node count, or dims specified"
         self.dims = dims
@@ -25,9 +25,12 @@ class RandomDataset(object):
             self.train_nodes = dist_func(p, [num_nodes, dims])
             self.val_nodes = dist_func(p, [num_nodes, dims])
             self.test_nodes = dist_func(p, [num_nodes, dims])
-            self.train_X, self.train_y = self.generate_data(self.train_nodes, size, similarity_vector)
-            self.val_X, self.val_y = self.generate_data(self.val_nodes, size, similarity_vector)
-            self.test_X, self.test_y = self.generate_data(self.test_nodes, size, similarity_vector)
+            self.train_X, self.train_y = self.generate_data(self.train_nodes,
+                                                            size, similarity_vector)
+            self.val_X, self.val_y = self.generate_data(self.val_nodes,
+                                                        size, similarity_vector)
+            self.test_X, self.test_y = self.generate_data(self.test_nodes,
+                                                          size, similarity_vector)
 
     def generate_data(self, nodes, size, similarity_vector):
         pairs = np.array([(x, y) for x in nodes for y in nodes if np.any(x != y)])
